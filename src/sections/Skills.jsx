@@ -28,11 +28,15 @@ const SKILLS = [
 export default function Skills() {
   const containerRef = useRef(null);
   const titleRef = useRef(null);
+  const orbitWrapRef = useRef(null);
   const orbitRef = useRef(null);
+  const centerTextRef = useRef(null);
+  const portalRef = useRef(null);
 
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
-      const tl = gsap.timeline({
+
+      const entranceTl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top 70%',
@@ -40,7 +44,7 @@ export default function Skills() {
         },
       });
 
-      tl.fromTo(
+      entranceTl.fromTo(
         titleRef.current,
         { opacity: 0, y: -30, filter: 'blur(10px)' },
         { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out' }
@@ -50,6 +54,30 @@ export default function Skills() {
         { opacity: 1, scale: 1, rotation: 0, duration: 2.2, ease: 'expo.out' },
         '-=0.8'
       );
+
+      gsap.set(portalRef.current, { scale: 0, xPercent: -50, yPercent: -50 });
+
+      const zoomTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'center 45%',
+          end: '+=120%',
+          pin: true,
+          scrub: 0.8,
+        },
+      });
+
+      zoomTl
+        .to(centerTextRef.current, { opacity: 0, duration: 0.5, ease: 'power2.out' }, 0)
+        .to(orbitWrapRef.current, { scale: 15, duration: 2, ease: 'power2.in' }, 0)
+        .to(titleRef.current, { y: -100, opacity: 0, duration: 0.5 }, 0.5)
+        .to(orbitRef.current, { opacity: 0, duration: 0.5 }, 1.5)
+        .to(portalRef.current, {
+          scale: 1.5,
+          duration: 0.3,
+          ease: 'power2.in'
+        }, 1.2);
+
     }, containerRef);
 
     return () => ctx.revert();
@@ -57,6 +85,8 @@ export default function Skills() {
 
   return (
     <div ref={containerRef} className="skills-container" id="case-studies">
+
+      <div ref={portalRef} className="white-portal" />
 
       <div className="ambient-light" />
 
@@ -70,10 +100,10 @@ export default function Skills() {
         <h2 className="skills-title" data-text="Skills">Skills</h2>
       </div>
 
-      <div className="skills-orbit-wrap">
+      <div ref={orbitWrapRef} className="skills-orbit-wrap">
         <div ref={orbitRef} className="orbit-system">
 
-          <div className="orbit-center-para">
+          <div ref={centerTextRef} className="orbit-center-para">
             <p>
               Bridging strategy and execution through code, data, and product
               thinking - shipping end-to-end systems that actually solve the
@@ -102,7 +132,6 @@ export default function Skills() {
           </div>
         </div>
       </div>
-
     </div>
   );
 }

@@ -1,243 +1,143 @@
-import { useState } from 'react';
-import ScrollReveal from '../components/ScrollReveal';
+import { useLayoutEffect, useRef, useState, useEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { FiArrowUpRight, FiMail, FiGithub, FiLinkedin, FiDownload } from 'react-icons/fi';
+import { FaXTwitter } from 'react-icons/fa6';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Contact() {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [copied, setCopied] = useState(false);
-  const [formState, setFormState] = useState('idle'); // idle, sending, success
-  const [handshakeLogs, setHandshakeLogs] = useState([]);
+  const containerRef = useRef(null);
+  const textRef = useRef(null);
+  const gridRefs = useRef([]);
+  const rowRefs = useRef([]);
 
-  const emailAddress = 'shashank.modi@outlook.com';
+  const [time, setTime] = useState("");
 
-  const copyEmail = () => {
-    navigator.clipboard.writeText(emailAddress);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      const formattedTime = now.toLocaleTimeString('en-US', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      setTime(`${formattedTime} IST`);
+    };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+    updateClock();
+    const intervalId = setInterval(updateClock, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
 
-  const executeHandshake = (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) return;
-
-    setFormState('sending');
-    setHandshakeLogs([]);
-
-    const logSequence = [
-      'sys_contact: initializing handshake protocol...',
-      'sys_contact: validating email address schema... OK',
-      'sys_contact: packaging message payload...',
-      'sys_contact: establishing socket tunnel to mail server...',
-      'sys_contact: transmitting encrypted data stream...',
-      'sys_contact: verification parity check... PASSED',
-      'sys_status: HTTP_202 ACCEPTED // MESSAGE_TRANSMITTED_OK'
-    ];
-
-    logSequence.forEach((log, index) => {
-      setTimeout(() => {
-        setHandshakeLogs(prev => [...prev, log]);
-        if (index === logSequence.length - 1) {
-          setFormState('success');
-          setFormData({ name: '', email: '', message: '' });
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top 75%',
+          toggleActions: 'play none none reverse',
         }
-      }, (index + 1) * 400); // Stagger line outputs
-    });
-  };
+      });
+
+      tl.fromTo(textRef.current,
+        { opacity: 0, y: 50, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: 'power3.out' }
+      );
+
+      tl.fromTo(gridRefs.current,
+        { scaleX: 0 },
+        { scaleX: 1, duration: 1, stagger: 0.1, ease: 'power2.inOut', transformOrigin: 'left' },
+        "-=0.8"
+      );
+
+      tl.fromTo(rowRefs.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out' },
+        "-=0.5"
+      );
+
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <div className="contact-container">
-      
-      <div className="contact-content">
-        
-        {/* Title */}
-        <ScrollReveal direction="up" delay={0}>
-          <div className="panel-subtitle panel-subtitle-large">
-            // CONNECTION PROTOCOL // 06
+    <div ref={containerRef} className="contact-container" id="contact">
+
+      <div className="contact-inner">
+        <div className="contact-title-wrap">
+          <h2 ref={textRef} className="contact-title">SAY HELLO.</h2>
+        </div>
+        <div className="contact-grid">
+
+          <div className="grid-line" ref={el => gridRefs.current[0] = el} />
+
+          <div className="contact-columns">
+
+            <div className="contact-left">
+              <div className="time-wrap">
+                <div className="time-header">
+                  <div className="status-dot" />
+                  <span className="time-label">Local Time (Mumbai)</span>
+                </div>
+                <span className="time-value">{time || "Loading..."}</span>
+              </div>
+
+              <a href={`${import.meta.env.BASE_URL}resume.pdf`} download="Resume-Shashank_Modi.pdf" target="_blank" rel="noreferrer" className="cv-download-btn">
+                <span>Download Résumé</span>
+                <FiDownload className="cv-icon" />
+              </a>
+            </div>
+
+            <div className="contact-right">
+              <a href="mailto:modishashank10@gmail.com" className="social-row" ref={el => rowRefs.current[0] = el}>
+                <div className="social-info">
+                  <FiMail className="social-icon" />
+                  <span className="social-name">Email</span>
+                </div>
+                <FiArrowUpRight className="social-arrow" />
+              </a>
+
+              <a href="https://linkedin.com/in/shashank-modi" target="_blank" rel="noreferrer" className="social-row" ref={el => rowRefs.current[1] = el}>
+                <div className="social-info">
+                  <FiLinkedin className="social-icon" />
+                  <span className="social-name">LinkedIn</span>
+                </div>
+                <FiArrowUpRight className="social-arrow" />
+              </a>
+
+              <a href="https://github.com/shashank-modi" target="_blank" rel="noreferrer" className="social-row" ref={el => rowRefs.current[2] = el}>
+                <div className="social-info">
+                  <FiGithub className="social-icon" />
+                  <span className="social-name">GitHub</span>
+                </div>
+                <FiArrowUpRight className="social-arrow" />
+              </a>
+
+              <div className="social-row twitter-row" ref={el => rowRefs.current[3] = el}>
+                <div className="social-info">
+                  <FaXTwitter className="social-icon" />
+                  <div className="twitter-text-wrap">
+                    <span className="twitter-default">X (Twitter)</span>
+                    <span className="twitter-hover">Coming Soon</span>
+                  </div>
+                </div>
+                <div className="twitter-placeholder" />
+              </div>
+
+            </div>
           </div>
-          <h2 className="section-title">
-            ESTABLISH CONNECTION
-          </h2>
-        </ScrollReveal>
 
-        {/* Contact Split Grid */}
-        <div className="contact-columns">
-          
-          {/* Left Panel: Protocol Terminal Info */}
-          <ScrollReveal direction="up" delay={150} className="contact-panel contact-panel-left">
-            <div className="panel-details panel-details-large">
-              <div className="panel-subtitle">
-                system_nodes // active_listeners
-              </div>
-
-              <div>
-                <h3 className="panel-title panel-title-large">
-                  COGNITIVE DIRECTIVES
-                </h3>
-                <p className="panel-text" style={{ marginTop: '0.75rem' }}>
-                  Always open to brainstorming new product concepts, scalable backend architectures, agentic pipelines, or operational opportunities. Send a message to initiate the handshake protocol.
-                </p>
-              </div>
-
-              {/* Direct Mail Copy Box */}
-              <div className="mail-box">
-                <span className="panel-subtitle">
-                  Direct Channel:
-                </span>
-                <div className="mail-row">
-                  <span className="mail-address mail-address-cyan">
-                    {emailAddress}
-                  </span>
-                  
-                  <button 
-                    onClick={copyEmail}
-                    className="copy-btn copy-btn-cyan"
-                  >
-                    {copied ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Socials / External links */}
-            <div className="social-links social-links-underlined">
-              <a 
-                href="https://github.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                Github
-              </a>
-              <span>//</span>
-              <a 
-                href="https://linkedin.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                LinkedIn
-              </a>
-              <span>//</span>
-              <a 
-                href="https://twitter.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                Twitter
-              </a>
-            </div>
-          </ScrollReveal>
-
-          {/* Right Panel: Active Handshake Form */}
-          <ScrollReveal direction="up" delay={300} className="contact-panel contact-panel-right">
-            
-            {formState === 'idle' && (
-              <form onSubmit={executeHandshake} className="contact-form">
-                
-                {/* Name */}
-                <div className="form-group">
-                  <label className="form-label form-label-large">
-                    Sender Designation:
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter your name"
-                    className="form-input form-input-cyan"
-                  />
-                </div>
-
-                {/* Email */}
-                <div className="form-group">
-                  <label className="form-label form-label-large">
-                    Return Routing Address:
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter your email"
-                    className="form-input form-input-cyan"
-                  />
-                </div>
-
-                {/* Message */}
-                <div className="form-group">
-                  <label className="form-label form-label-large">
-                    Message Payload:
-                  </label>
-                  <textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    required
-                    rows="4"
-                    placeholder="Input message parameters..."
-                    className="form-textarea form-textarea-cyan"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="form-submit-btn form-submit-btn-cyan"
-                >
-                  Initiate Handshake Protocol
-                </button>
-
-              </form>
-            )}
-
-            {/* Handshake Telemetry Logs View */}
-            {(formState === 'sending' || formState === 'success') && (
-              <div className="telemetry-container">
-                
-                <div className="panel-details">
-                  <div className="telemetry-header">
-                    <span className="telemetry-header-title">// SECURE_HANDSHAKE_TRANSMISSION</span>
-                    <span className="telemetry-header-status">{formState === 'sending' ? 'TRANSMITTING...' : 'FINISHED'}</span>
-                  </div>
-
-                  <div className="telemetry-logs">
-                    {handshakeLogs.map((log, index) => (
-                      <div key={index} className="telemetry-line">
-                        <span className="telemetry-bullet">&gt;</span>
-                        <span className="telemetry-text">{log}</span>
-                      </div>
-                    ))}
-                    {formState === 'sending' && (
-                      <div className="telemetry-line">
-                        <span className="telemetry-bullet telemetry-bullet-active">&gt;</span>
-                        <span className="inline-block w-1.5 h-3 bg-[#00f0ff] caret-blink ml-1 align-middle" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {formState === 'success' && (
-                  <button
-                    onClick={() => setFormState('idle')}
-                    className="telemetry-reset-btn"
-                  >
-                    Open New Protocol Session
-                  </button>
-                )}
-
-              </div>
-            )}
-
-          </ScrollReveal>
-
+          <div className="grid-line" ref={el => gridRefs.current[1] = el} />
         </div>
 
+        <div className="footer-credits">
+          <span>© {new Date().getFullYear()} Shashank Modi. All rights reserved.</span>
+          <span>Built with React & GSAP.</span>
+        </div>
       </div>
-
     </div>
   );
 }

@@ -11,7 +11,7 @@ const MatrixRain = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let height = (canvas.height = canvas.parentElement.clientHeight);
     const chars = '010101ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
     const fontSize = 15;
     let columns = Math.floor(width / fontSize);
@@ -55,7 +55,7 @@ const MatrixRain = () => {
 
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      height = canvas.height = canvas.parentElement.clientHeight;
       columns = Math.floor(width / fontSize);
       drops = [];
       activeColumns = [];
@@ -336,7 +336,7 @@ export default function CinematicHero() {
         </div>
       </div>
 
-      <div ref={contentRef} className="hero-content z-10 relative">
+      <div ref={contentRef} className="hero-content z-10 relative" style={{ marginBottom: '10rem' }}>
         <div ref={greetingRef} className="hero-greeting-wrapper">
           <h1 className="hero-greeting">
             <span style={{ color: '#3a451c97', fontWeight: '600', fontSize: '3.5rem' }}>Hi, I'm</span> <div style={{ color: '#1e2019d0', fontWeight: 800, fontSize: '4rem' }}><ScrambleText text="Shashank Modi." /></div>
