@@ -3,7 +3,7 @@ import Lenis from '@studio-freight/lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FiMonitor } from 'react-icons/fi';
-
+import ReactGA from 'react-ga4';
 import Navbar from './components/Navbar';
 import CinematicHero from './sections/CinematicHero';
 import About from './sections/About';
@@ -16,6 +16,11 @@ gsap.registerPlugin(ScrollTrigger);
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    ReactGA.initialize("G-1D8XS0EFDF");
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => {
